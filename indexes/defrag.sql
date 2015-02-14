@@ -924,7 +924,7 @@ BEGIN
                     , partitionNumber
                     , fragmentation
                     , page_count
-                    , DATETIMEStart
+                    , dateTimeStart
                     , sqlStatement
                 )
                 SELECT
