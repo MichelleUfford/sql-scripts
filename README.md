@@ -13,6 +13,8 @@ Repo for sharing my SQL Server scripts and stored procedures. These are tested o
 ## dev
 * bcp_script_generator.sql
   * Generates bcp scripts using SQL Server metadata
+* dba_parseString_udf.sql
+  * This function parses string input using a variable delimiter.
 * insert_statement_generator.sql
   * Generates insert statements for Teradata using SQL Server metadata. This is useful for easily migrating small tables (i.e. < 1000 rows) from SQL Server to Teradata. DO NOT use on large tables. 
 * teradata_ddl_generator.sql
@@ -35,8 +37,6 @@ Repo for sharing my SQL Server scripts and stored procedures. These are tested o
   *  Displays potential unused indexes for the current database. Dropping these indexes may improve database performance. These statistics are reset each time the server is rebooted, so make sure to review the [sqlserver_start_time] value to ensure the  statistics are captured for a meaningful time period.
   
 ## misc
-* dba_parseString_udf.sql
-  * This function parses string input using a variable delimiter.
 * dba_viewPageData_sp.sql
   * Retrieves page data for the specified table/page.
 
