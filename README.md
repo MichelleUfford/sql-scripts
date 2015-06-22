@@ -7,6 +7,8 @@ Repo for sharing my SQL Server scripts and stored procedures. These are tested o
 ## admin
 * dba_recompile_sp.sql
   * Recompiles all procs in a specific database or all procs; can recompile a specific table, too.
+* sql-agent-job-history.sql
+  * Explores SQL Agent Job metadata to get job statuses — when the job last ran, when it will run again, an aggregate count of the number of successful and failed executions in the queried time period, T-SQL code to disable the job, etc.
 
 ## dev
 * bcp_script_generator.sql
