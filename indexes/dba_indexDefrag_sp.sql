@@ -228,7 +228,7 @@ CREATE PROCEDURE dbo.dba_indexDefrag_sp
   , @debugMode              BIT                 = 0
         /* display some useful comments to help determine if/WHERE issues occur */
   , @lockTimeout            INT                 = 3
-        /* Specifies the number of milliseconds a statement waits for a lock to be released; expressed in minutes */
+        /* Specifies the number of minutes a statement waits for a lock to be released */
 AS /*********************************************************************************
     Name:       dba_indexDefrag_sp
 
