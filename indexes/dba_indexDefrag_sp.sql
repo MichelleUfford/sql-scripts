@@ -227,8 +227,8 @@ CREATE PROCEDURE dbo.dba_indexDefrag_sp
         /* time to wait between defrag commands */
   , @debugMode              BIT                 = 0
         /* display some useful comments to help determine if/WHERE issues occur */
-  , @lockTimeout            INT                 = 3
-        /* Specifies the number of minutes a statement waits for a lock to be released */
+  , @lockTimeout            INT                 = 180
+        /* Specifies the number of seconds a statement waits for a lock to be released */
 AS /*********************************************************************************
     Name:       dba_indexDefrag_sp
 
@@ -726,7 +726,10 @@ BEGIN
 
         IF @debugMode = 1 RAISERROR(@debugMessage, 0, 42) WITH NOWAIT;
 
-        SET @lockTimoutCommand = N'SET LOCK_TIMEOUT ' + CAST(@lockTimeout * 60 * 1000 AS NVARCHAR) + N' ';
+        IF @lockTimeout > 0
+          SET @lockTimoutCommand = N'SET LOCK_TIMEOUT ' + CAST(@lockTimeout * 1000 AS NVARCHAR(4000)) + N' ';
+        ELSE
+          SET @lockTimoutCommand = N'';
 
         /* Begin our loop for defragging */
         WHILE (SELECT COUNT(*) 
