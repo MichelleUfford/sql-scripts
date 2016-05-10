@@ -782,6 +782,8 @@ BEGIN
                 , @partitionNumber_Out  = @partitionNumber  OUTPUT
                 , @pageCount_Out        = @pageCount        OUTPUT;
 
+            SELECT @debugMessage = '  Picked object ID ' + CAST(@objectID AS VARCHAR(10)) +  ' and index ID ' + CAST(@indexID AS VARCHAR(10))
+            IF @debugMode = 1 RAISERROR(@debugMessage, 0, 42) WITH NOWAIT;
             IF @debugMode = 1 RAISERROR('  Looking up the specifics for our index...', 0, 42) WITH NOWAIT;
 
             /* Look up index information */
@@ -903,8 +905,11 @@ BEGIN
             IF @executeSQL = 1
             BEGIN
 
-                SET @debugMessage = 'Executing: ' + @sqlCommand;
-                
+                IF (@sqlCommand IS NOT NULL AND LEN(@sqlCommand) > 0)
+                    SET @debugMessage = 'Executing: ' + @sqlCommand;
+                ELSE
+                    SET @debugMessage = 'Skipping index because it''s name could not be found';
+
                 /* Print the commands we're executing if specified to do so */
                 IF @printCommands = 1 OR @debugMode = 1
                     RAISERROR(@debugMessage, 0, 42) WITH NOWAIT;
@@ -931,9 +936,9 @@ BEGIN
                       @databaseID
                     , @databaseName
                     , @objectID
-                    , @objectName
+                    , ISNULL(@objectName, '<unknown>')
                     , @indexID
-                    , @indexName
+                    , ISNULL(@indexName, '<unknown>')
                     , @partitionNumber
                     , @fragmentation
                     , @pageCount
@@ -946,7 +951,8 @@ BEGIN
                 BEGIN TRY
 
                     /* Execute our defrag! */
-                    EXECUTE sp_executesql @sqlCommand;
+                    IF (@sqlCommand IS NOT NULL AND LEN(@sqlCommand) > 0)
+                        EXECUTE sp_executesql @sqlCommand;
                     SET @dateTimeEnd = GETDATE();
                     
                     /* Update our log with our completion time */
