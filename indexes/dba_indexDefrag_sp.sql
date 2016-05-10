@@ -441,15 +441,23 @@ BEGIN
         IF @scanMode NOT IN ('LIMITED', 'SAMPLED', 'DETAILED')
             SET @scanMode = 'LIMITED';
 
+        IF @executeSQL IS NULL
+            SET @executeSQL = 0;
+
         IF @debugMode IS NULL
             SET @debugMode = 0;
 
         IF @forceRescan IS NULL
             SET @forceRescan = 0;
+            
+        IF @minPageCount IS NULL
+            SET @minPageCount = 8;
 
         IF @sortInTempDB IS NULL
             SET @sortInTempDB = 1;
 
+        IF @onlineRebuild IS NULL
+            SET @onlineRebuild = 0;
 
         IF @debugMode = 1 RAISERROR('Undusting the cogs AND starting up...', 0, 42) WITH NOWAIT;
 
@@ -592,7 +600,7 @@ BEGIN
                 , 0 -- not scanned yet for fragmentation
             FROM sys.databases AS d
             JOIN dbo.dba_parseString_udf(@database, ',') AS x
-                ON d.name = x.stringValue
+                ON d.name COLLATE database_default = x.stringValue
             WHERE [name] NOT IN ('master', 'tempdb')-- exclude system databases
                 AND [state] = 0 -- state must be ONLINE
                 AND is_read_only = 0;  -- cannot be read_only
