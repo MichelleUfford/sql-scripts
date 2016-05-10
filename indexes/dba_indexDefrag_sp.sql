@@ -227,6 +227,8 @@ CREATE PROCEDURE dbo.dba_indexDefrag_sp
         /* time to wait between defrag commands */
   , @debugMode              BIT                 = 0
         /* display some useful comments to help determine if/WHERE issues occur */
+  , @lockTimeout            INT                 = 180
+        /* Specifies the number of seconds a statement waits for a lock to be released */
 AS /*********************************************************************************
     Name:       dba_indexDefrag_sp
 
@@ -493,7 +495,8 @@ BEGIN
                 , @allowPageLockSQL         NVARCHAR(4000)
                 , @allowPageLockSQL_Param   NVARCHAR(4000)
                 , @allowPageLocks           INT
-                , @excludeMaxPartitionSQL   NVARCHAR(4000);
+                , @excludeMaxPartitionSQL   NVARCHAR(4000)
+                , @lockTimoutCommand        NVARCHAR(4000);
 
         /* Initialize our variables */
         SELECT @startdatetime = GETDATE()
@@ -731,6 +734,11 @@ BEGIN
 
         IF @debugMode = 1 RAISERROR(@debugMessage, 0, 42) WITH NOWAIT;
 
+        IF @lockTimeout > 0
+          SET @lockTimoutCommand = N'SET LOCK_TIMEOUT ' + CAST(@lockTimeout * 1000 AS NVARCHAR(4000)) + N' ';
+        ELSE
+          SET @lockTimoutCommand = N'';
+
         /* Begin our loop for defragging */
         WHILE (SELECT COUNT(*) 
                FROM dbo.dba_indexDefragStatus 
@@ -865,7 +873,7 @@ BEGIN
                 AND @allowPageLocks = 0
             BEGIN
             
-                SET @sqlCommand = N'ALTER INDEX ' + @indexName + N' ON ' + @databaseName + N'.' 
+                SET @sqlCommand = @lockTimoutCommand + N'ALTER INDEX ' + @indexName + N' ON ' + @databaseName + N'.'
                                     + @schemaName + N'.' + @objectName + N' REORGANIZE';
 
                 /* If our index is partitioned, we should always REORGANIZE */
@@ -898,7 +906,7 @@ BEGIN
                 ELSE
                     SET @rebuildCommand = @rebuildCommand + N')';
 
-                SET @sqlCommand = N'ALTER INDEX ' + @indexName + N' ON ' + @databaseName + N'.'
+                SET @sqlCommand = @lockTimoutCommand + N'ALTER INDEX ' + @indexName + N' ON ' + @databaseName + N'.'
                                 + @schemaName + N'.' + @objectName + @rebuildCommand;
 
             END
