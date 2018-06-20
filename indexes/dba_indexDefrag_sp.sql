@@ -889,8 +889,7 @@ BEGIN
                 /* Set sort operation preferences */
                 IF @sortInTempDB = 1 
                     SET @rebuildCommand = @rebuildCommand + N', SORT_IN_TEMPDB = ON';
-                ELSE
-                    SET @rebuildCommand = @rebuildCommand + N', SORT_IN_TEMPDB = Off';
+                
 
                 /* Set processor restriction options; requires Enterprise Edition */
                 IF @maxDopRestriction IS NOT NULL AND @editionCheck = 1
